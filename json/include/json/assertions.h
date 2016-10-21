@@ -1,4 +1,4 @@
-// Copyright 2007-2010 Baptiste Lepilleur
+ï»¿// Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
 // See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
@@ -25,11 +25,20 @@
 
 # define JSON_FAIL_MESSAGE(message)                                            \
   {                                                                            \
-    std::ostringstream oss; oss << message;                                    \
-    ::MessageBoxA(NULL,message,"´íÎó",0);\
+	std::string msg = formatJsonValue(this, message);                          \
+	std::ostringstream oss; oss << msg;                                        \
+    ::MessageBoxA(NULL,std::string(oss.str()).c_str(),"é”™è¯¯",0);                \
     Json::throwLogicError(oss.str());                                          \
 	abort();                                                                   \
   }
+
+# define JSON_FAIL_MESSAGE_DEFAULT(message)                                      \
+    {                                                                            \
+    std::ostringstream oss; oss << message;                                    \
+    ::MessageBoxA(NULL,std::string(oss.str()).c_str(),"é”™è¯¯",0);\
+    Json::throwLogicError(oss.str());                                          \
+	abort();                                                                   \
+    }
 
 #else // JSON_USE_EXCEPTION
 
@@ -39,18 +48,32 @@
 // release builds we abort, for a core-dump or debugger.
 # define JSON_FAIL_MESSAGE(message)                                            \
   {                                                                            \
-    std::ostringstream oss; oss << message;                                    \
-	::MessageBoxA(NULL,message,"´íÎó",0);\
+	std::string msg = formatJsonValue(this, message);                          \
+    std::ostringstream oss; oss << msg;                                        \
+	::MessageBoxA(NULL,std::string(oss.str()).c_str(),"é”™è¯¯",0);                \
     assert(false && oss.str().c_str());                                        \
     abort();                                                                   \
   }
 
+# define JSON_FAIL_MESSAGE_DEFAULT(message)                                      \
+    {                                                                            \
+    std::ostringstream oss; oss << message;                                    \
+	::MessageBoxA(NULL,std::string(oss.str()).c_str(),"é”™è¯¯",0);\
+    assert(false && oss.str().c_str());                                        \
+    abort();                                                                   \
+    }
 
 #endif
 
 #define JSON_ASSERT_MESSAGE(condition, message)                                \
   if (!(condition)) {                                                          \
-    JSON_FAIL_MESSAGE(message);                                                \
+    JSON_FAIL_MESSAGE(msg.c_str());                                            \
   }
+
+
+#define JSON_ASSERT_MESSAGE_DEFAULT(condition, message)                        \
+  if (!(condition)) {                                                          \
+	JSON_FAIL_MESSAGE_DEFAULT(message);                                                \
+    }
 
 #endif // CPPTL_JSON_ASSERTIONS_H_INCLUDED

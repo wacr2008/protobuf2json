@@ -18,10 +18,17 @@
 #endif
 #include <cstddef> // size_t
 #include <algorithm> // min()
+#include <windows.h>
 
 #define JSON_ASSERT_UNREACHABLE assert(false)
 
 namespace Json {
+	static inline std::string formatJsonValue(const Json::Value *const value, const char *msg)
+	{ 
+		Json::FastWriter fast_writer; 
+		std::string a = fast_writer.write(*value) + msg;
+		return a;
+	}
 
 // This is a walkaround to avoid the static initialization of Value::null.
 // kNull must be word-aligned to avoid crashing on ARM.  We use an alignment of
@@ -105,7 +112,7 @@ static inline char* duplicateAndPrefixStringValue(
 {
   // Avoid an integer overflow in the call to malloc below by limiting length
   // to a sane value.
-  JSON_ASSERT_MESSAGE(length <= (unsigned)Value::maxInt - sizeof(unsigned) - 1U,
+	JSON_ASSERT_MESSAGE_DEFAULT(length <= (unsigned)Value::maxInt - sizeof(unsigned) - 1U,
                       "in Json::Value::duplicateAndPrefixStringValue(): "
                       "length too big for prefixing");
   unsigned actualLength = length + sizeof(unsigned) + 1U;
@@ -214,7 +221,7 @@ void Value::CommentInfo::setComment(const char* text, size_t len) {
     comment_ = 0;
   }
   JSON_ASSERT(text != 0);
-  JSON_ASSERT_MESSAGE(
+  JSON_ASSERT_MESSAGE_DEFAULT(
       text[0] == '\0' || text[0] == '/',
       "in Json::Value::setComment(): Comments must start with /");
   // It seems that /**/ style comments are acceptable as well.
@@ -598,7 +605,7 @@ bool Value::operator!=(const Value& other) const { return !(*this == other); }
 
 const char* Value::asCString() const {
   JSON_ASSERT_MESSAGE(type_ == stringValue,
-                      "in Json::Value::asCString(): requires stringValue");
+			"in Json::Value::asCString(): requires stringValue");
   if (value_.string_ == 0) return 0;
   unsigned this_len;
   char const* this_str;
